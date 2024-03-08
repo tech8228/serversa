@@ -120,7 +120,9 @@ router.put("/update/:recordnum", async (req, res) => {
     if (attendanceRecord) {
       // Update the status and date if provided
       if (Status) attendanceRecord.Status = Status;
-      if (Date) attendanceRecord.AttendanceDate = Date;
+      if (Date) {
+        attendanceRecord.AttendanceDate = Date;
+      }
 
       // Save the updated attendance record
       await attendanceRecord.save();
@@ -150,7 +152,7 @@ router.post("/update/:recordnum", async (req, res) => {
     if (attendanceRecord) {
       // Update the status and date if provided
       if (Status) attendanceRecord.Status = Status;
-      if (Date) attendanceRecord.AttendanceDate = Date;
+      if (Date) attendanceRecord.AttendanceDate = Date.split("T")[0];
 
       // Save the updated attendance record
       await attendanceRecord.save();
@@ -244,19 +246,18 @@ router.get("/attendance", async (req, res) => {
         include: [
           {
             model: Students,
-            attributes: ["StudentName"], // Include StudentName from the associated Students table
+            attributes: ["StudentName"],
           },
         ],
       });
     }
 
-    // Extract relevant data and send response
     const formattedAttendanceRecords = attendanceRecords.map((record) => ({
       RecordID: record.RecordID,
       StudentID: record.StudentID,
       AttendanceDate: record.AttendanceDate,
       Status: record.Status,
-      StudentName: record.Student ? record.Student.StudentName : null, // Access StudentName from the associated Students table
+      StudentName: record.Student ? record.Student.StudentName : null,
     }));
 
     res.status(200).json(formattedAttendanceRecords);

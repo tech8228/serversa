@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { Courses, AttendanceRecords } = require("../models");
 const { validateToken } = require("../middleware/Authmiddleware");
-const { check } = require("express-validator");
+const { validationResult } = require("express-validator");
 const { validateCourse } = require("../routes/Validation");
 
 router.get("/", async (req, res) => {
@@ -22,6 +22,10 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/", validateCourse, async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
   const { CourseName } = req.body;
   if (!CourseName) {
     return res.status(400).json({ error: "Missing Course Data" });

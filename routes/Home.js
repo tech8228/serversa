@@ -108,23 +108,66 @@ router.post("/", validateToken, async (req, res) => {
 router.get("/search", async (req, res) => {
   console.log("reached search");
   try {
-    const { name } = req.query;
+    const { sname } = req.query; // Use 'sname' instead of 'name' to match the query parameter name
 
-    // Build the search criteria based on query parameters
-    const whereClause = {};
-    if (name) {
-      whereClause.StudentName = { [Op.like]: `%${title}%` };
-    }
-
+    // Step 1: Query Students table to get student information
     const searchResults = await Students.findAll({
-      where: whereClause,
+      where: {
+        Password: { [Op.eq]: null },
+        StudentName: sname, // Use 'sname' instead of 'name' to access the query parameter
+      },
     });
 
-    res.status(200).json(searchResults);
-  } catch (error) {
-    console.error("Error searching jobs:", error);
+    if (searchResults.length === 0) {
+      return res.status(404).json({ error: "No students found" });
+    }
 
-    res.status(500).json({ error: "Internal server error" });
+    const studentID = searchResults[0].studentID; // Assuming studentID is the correct field name
+
+    const attendanceRecords = await AttendanceRecords.findAll({
+      where: {
+        StudentID: studentID,
+      },
+      attributes: ["StudentID", "CourseID", "AttendanceDate", "Status"],
+      order: [
+        ["CourseID", "ASC"],
+        ["AttendanceDate", "ASC"],
+      ],
+    });
+
+    // Step 2: Extract unique course IDs from the attendance records
+    const courseIDs = [
+      ...new Set(attendanceRecords.map((record) => record.CourseID)),
+    ];
+
+    // Step 3: Query Courses table to get course names for each unique course ID
+    const courseNames = await Courses.findAll({
+      attributes: ["courseID", "CourseName"],
+      where: {
+        CourseID: {
+          [Op.in]: courseIDs,
+        },
+      },
+    });
+
+    // Step 4: Replace CourseID with CourseName in attendance records
+    const modifiedAttendanceRecords = attendanceRecords.map((record) => {
+      const course = courseNames.find(
+        (course) => course.courseID === record.CourseID
+      );
+      return {
+        StudentID: record.StudentID,
+        AttendanceDate: record.AttendanceDate,
+        Status: record.Status,
+        CourseName: course ? course.CourseName : null,
+      };
+    });
+
+    //res.status(200).json(courseNames);
+    res.status(200).json(modifiedAttendanceRecords);
+  } catch (error) {
+    console.error("Error searching for students:", error);
+    res.status(500).json({ error: "Internal error" });
   }
 });
 
