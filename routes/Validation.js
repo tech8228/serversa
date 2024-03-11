@@ -1,10 +1,10 @@
 const { body, validationResult } = require("express-validator");
 
 const validateRegistration = [
-  body("username")
+  body("StudentName")
     .notEmpty()
     .isLength({ min: 6 })
-    .withMessage("Username is required"),
+    .withMessage("Student Name is required"),
   body("email").isEmail().withMessage("Invalid email"),
   // body("password")
   //   .isLength({ min: 6 })

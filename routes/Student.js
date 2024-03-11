@@ -4,11 +4,11 @@ const { Students } = require("../models");
 const bcrypt = require("bcrypt");
 const { sign } = require("jsonwebtoken");
 const { validateToken } = require("../middleware/Authmiddleware");
-const { validationResult } = require("express-validator");
+const { validationResult, check } = require("express-validator");
 const { validateRegistration, validateLogin } = require("../routes/Validation");
 
 router.post("/", validateRegistration, async (req, res) => {
-  const errors = validationResult(req);
+  const errors = check(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ error: errors.array() });
   }
