@@ -4,7 +4,7 @@
     "password": "Root2023",
 
     "database": "attendancedb",
-    "host": "awsattend.cjmuuk22e584.us-east-2.rds.amazonaws.com",
+    "host": "127.0.0.1",
     "dialect": "mysql"
   },
   "test": {
