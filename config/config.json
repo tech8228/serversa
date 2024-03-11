@@ -2,7 +2,6 @@
   "development": {
     "username": "root",
     "password": "Root2023",
-
     "database": "attendancedb",
     "host": "127.0.0.1",
     "dialect": "mysql"
