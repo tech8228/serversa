@@ -2,8 +2,9 @@
   "development": {
     "username": "root",
     "password": "Root2023",
+
     "database": "attendancedb",
-    "host": "127.0.0.1",
+    "host": "awsattend.cjmuuk22e584.us-east-2.rds.amazonaws.com",
     "dialect": "mysql"
   },
   "test": {
